@@ -1336,12 +1336,11 @@ function renderTable(dataList) {
 
     tr.innerHTML = `
       <td style="font-weight:600; color:var(--gray-400);">${index + 1}</td>
+      <td style="font-size:12px; white-space:nowrap; color:var(--gray-600);">${formatJobDate(job.createdDate)}</td>
       <td><strong style="font-size:12px;">${job.company}</strong></td>
       <td>
         <div class="job-title-link" onclick="openDetailDrawer('${job.id}')" style="font-weight:500; font-size:12px; cursor:pointer;" title="Open detail">${job.title}</div>
-        <div style="font-size:11px; color:var(--gray-500); margin-top:2px;">
-          ${job.location} &bull; Added ${formatJobDate(job.createdDate)}
-        </div>
+        <div style="font-size:11px; color:var(--gray-500); margin-top:2px;">${job.location}</div>
       </td>
       <td><span class="status-pill">${job.arrangement}</span></td>
       <td>
