@@ -1,0 +1,12 @@
+{
+  "name": "interviewsurge-ops-dashboard",
+  "version": "1.0.0",
+  "description": "InterviewSurge Operations Dashboard for managing client job applications",
+  "scripts": {
+    "dev": "npx http-server -p 3000 -o"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

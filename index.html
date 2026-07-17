@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InterviewSurge — Ops Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=3">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- ── Top Header ─────────────────────────────────────────── -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo-container">
+          <span class="logo-text">interview<span class="logo-bold">surge</span></span>
+          <span class="badge-ops">OPS TEAM</span>
+        </div>
+      </div>
+      <!-- Nav moved to the center of the header -->
+      <nav class="header-nav">
+        <button class="header-nav-item active" id="btn-nav-dashboard" onclick="switchView('dashboard')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+          Overview
+        </button>
+        <button class="header-nav-item" id="btn-nav-clients" onclick="switchView('clients')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Client Queues
+          <span class="header-nav-badge" id="sidebar-total-pending"></span>
+        </button>
+      </nav>
+      <div class="header-right-spacer"></div>
+    </header>
+
+    <!-- Main Layout — no sidebar, full width -->
+    <div class="main-layout">
+
+      <!-- Content -->
+      <main class="content-panel">
+
+        <!-- ══════════════════════════════════════════════════════
+             VIEW: OVERVIEW
+             ══════════════════════════════════════════════════════ -->
+        <div id="view-dashboard" class="content-view">
+          <div class="view-header">
+            <div>
+              <h1>Ops Control Center</h1>
+            </div>
+          </div>
+
+          <!-- Stats row -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-label">Awaiting Submission</span>
+                <span class="stat-icon pending-color">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </span>
+              </div>
+              <div class="stat-value" id="stats-awaiting">--</div>
+              <div class="stat-desc">Approved by client, pending ops apply</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-label">Currently Submitting</span>
+                <span class="stat-icon active-color">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+                </span>
+              </div>
+              <div class="stat-value" id="stats-submitting">--</div>
+              <div class="stat-desc">In-progress by ops team members</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-label">Applied Today</span>
+                <span class="stat-icon success-color">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </span>
+              </div>
+              <div class="stat-value" id="stats-applied">--</div>
+              <div class="stat-desc">Proof uploaded and verified today</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-header">
+                <span class="stat-label">Blocked / Failed</span>
+                <span class="stat-icon danger-color">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                </span>
+              </div>
+              <div class="stat-value" id="stats-failed">--</div>
+              <div class="stat-desc">Requires intervention / updated credentials</div>
+            </div>
+          </div>
+
+          <!-- Dashboard Grid -->
+          <div class="dashboard-grid">
+            <!-- Client list card -->
+            <div class="grid-card">
+              <div class="card-header">
+                <h3>Active Client Workspaces</h3>
+                <span class="card-action-link" onclick="switchView('clients')">View all queues →</span>
+              </div>
+              <div class="client-list-grid" id="dashboard-clients-list">
+                <!-- populated by JS -->
+              </div>
+            </div>
+
+            <!-- Chart + feed card -->
+            <div class="grid-card">
+              <div class="card-header">
+                <h3>Daily Submission Rate</h3>
+                <span class="badge-green">Target: 95%</span>
+              </div>
+              <div class="mock-chart-container">
+                <svg class="visual-chart" viewBox="0 0 400 150">
+                  <defs>
+                    <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#111111" stop-opacity="0.08"></stop>
+                      <stop offset="100%" stop-color="#111111" stop-opacity="0"></stop>
+                    </linearGradient>
+                  </defs>
+                  <path d="M 0 110 Q 50 70 100 95 T 200 40 T 300 70 T 400 30 L 400 150 L 0 150 Z" fill="url(#chart-grad)"></path>
+                  <path d="M 0 110 Q 50 70 100 95 T 200 40 T 300 70 T 400 30" fill="none" stroke="#111111" stroke-width="2"></path>
+                  <circle cx="100" cy="95" r="3" fill="#111111"></circle>
+                  <circle cx="200" cy="40" r="3" fill="#111111"></circle>
+                  <circle cx="300" cy="70" r="3" fill="#111111"></circle>
+                  <circle cx="400" cy="30" r="3" fill="#111111"></circle>
+                  <line x1="0" y1="120" x2="400" y2="120" stroke="#e5e7eb" stroke-dasharray="4"></line>
+                  <line x1="0" y1="60" x2="400" y2="60" stroke="#e5e7eb" stroke-dasharray="4"></line>
+                </svg>
+                <div class="chart-labels">
+                  <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu (Today)</span>
+                </div>
+              </div>
+              <div class="ops-feed">
+                <h4>LIVE SYSTEM FEED</h4>
+                <div class="feed-list" id="dashboard-feed-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════
+             VIEW: CLIENT QUEUES
+             ══════════════════════════════════════════════════════ -->
+        <div id="view-clients" class="content-view" style="display:none;">
+
+          <!-- Hidden rendered list used by JS for state -->
+          <div id="clients-list-vertical" style="display:none;"></div>
+
+          <div class="client-workspace-container">
+
+            <!-- ── Left: Client Switcher Panel ── -->
+            <div class="client-switcher-panel">
+              <div class="client-switcher-header">
+                <span class="client-switcher-title">Clients</span>
+              </div>
+              <div class="client-switcher-search">
+                <input type="text" id="client-search-input" placeholder="Search clients…" oninput="filterClientList()">
+              </div>
+              <div class="client-switcher-list" id="client-switcher-list">
+                <!-- populated by JS -->
+              </div>
+            </div>
+
+            <!-- ── Right: Active Client Workspace ── -->
+            <div class="client-detail-pane">
+
+              <div id="no-client-selected" class="no-selection-state" style="display:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <h3>No Client Selected</h3>
+                <p>Choose a client from the left to view their approved jobs and application queue.</p>
+              </div>
+
+              <div id="active-client-content" style="display:none;">
+
+                <!-- Workspace Header -->
+                <div class="client-workspace-header">
+                  <div class="client-title-area">
+                    <div class="client-avatar" id="active-client-avatar">SK</div>
+                    <div>
+                      <span id="active-client-name" style="font-size:16px; font-weight:700; letter-spacing:-0.2px; color:var(--gray-900);"></span>
+                      <span id="active-client-base-cv" style="display:none;"></span>
+                    </div>
+                  </div>
+                  <div class="persona-section">
+                    <span class="persona-label">ACTIVE PERSONA</span>
+                    <div class="persona-pill-group" id="active-persona-toggles"></div>
+                  </div>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="table-controls-bar">
+                  <div class="filter-group-main">
+                    <div class="search-wrapper">
+                      <input type="text" id="job-search-input" placeholder="Search company, title, keywords…" oninput="applyFilters()">
+                      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    </div>
+                    <div class="filter-select-wrapper">
+                      <label for="filter-strength">Match Strength</label>
+                      <select id="filter-strength" onchange="applyFilters()">
+                        <option value="all">All Strengths</option>
+                        <option value="Strong">Strong (90+)</option>
+                        <option value="Possible">Possible (&lt;90)</option>
+                      </select>
+                    </div>
+                    <div class="filter-select-wrapper">
+                      <label for="filter-status">Ops Status</label>
+                      <select id="filter-status" onchange="applyFilters()">
+                        <option value="all">All Statuses</option>
+                        <option value="Awaiting Apply">Awaiting Apply</option>
+                        <option value="Applying">Applying</option>
+                        <option value="Applied">Applied</option>
+                        <option value="Paused">Paused</option>
+                        <option value="Failed">Failed</option>
+                      </select>
+                    </div>
+                    <div class="filter-select-wrapper">
+                      <label for="filter-agent">Assigned Agent</label>
+                      <select id="filter-agent" onchange="applyFilters()">
+                        <option value="all">All Agents</option>
+                        <option value="unassigned">Unassigned</option>
+                        <option value="Saranya">Saranya</option>
+                        <option value="Alex">Alex</option>
+                        <option value="Jordan">Jordan</option>
+                        <option value="Priya">Priya</option>
+                        <option value="Marcus">Marcus</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="action-group">
+                    <button class="btn-secondary" onclick="exportClientData()">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                      Export
+                    </button>
+                    <button class="btn-secondary" onclick="resetFilters()">Reset</button>
+                  </div>
+                </div>
+
+                <!-- Tracker Table -->
+                <div class="table-container">
+                  <table class="tracker-table" id="jobs-tracker-table">
+                    <thead>
+                      <tr>
+                        <th style="width:44px;">Rank</th>
+                        <th>Company</th>
+                        <th>Job Title</th>
+                        <th>Arrangement</th>
+                        <th>Match Score</th>
+                        <th>Salary Range</th>
+                        <th style="width:90px;">Apply</th>
+                        <th style="width:150px;">Assigned Ops</th>
+                        <th style="width:150px;">Status</th>
+                        <th>Proof</th>
+                      </tr>
+                    </thead>
+                    <tbody id="jobs-table-body"></tbody>
+                  </table>
+                  <div class="empty-table-state" id="table-empty-state" style="display:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                    <h4>No Matching Jobs</h4>
+                    <p>Try adjusting your search or filters.</p>
+                  </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="workspace-footer">
+                  <span id="showing-results-text">Showing 0 results</span>
+                  <span>Drag headers to reorder. Columns 1–3 pinned.</span>
+                </div>
+
+              </div><!-- /active-client-content -->
+            </div><!-- /client-detail-pane -->
+          </div><!-- /client-workspace-container -->
+        </div><!-- /view-clients -->
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ── Slide-Out Drawer ───────────────────────────────────── -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeDetailDrawer()"></div>
+  <div class="detail-drawer" id="detail-drawer">
+    <div class="drawer-header">
+      <div class="drawer-title-wrapper">
+        <span class="company-sub" id="drawer-company-name"></span>
+        <h3 id="drawer-job-title"></h3>
+      </div>
+      <button class="btn-close-drawer" onclick="closeDetailDrawer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <div class="drawer-content">
+      <div class="drawer-section job-meta-cards">
+        <div class="meta-card"><span class="label">Location</span><span class="value" id="drawer-location"></span></div>
+        <div class="meta-card"><span class="label">Arrangement</span><span class="value" id="drawer-arrangement"></span></div>
+        <div class="meta-card"><span class="label">ATS Uplift</span><span class="value" id="drawer-score-delta"></span></div>
+        <div class="meta-card"><span class="label">Salary Range</span><span class="value" id="drawer-salary"></span></div>
+      </div>
+
+      <div class="drawer-tab-container">
+        <!-- Details side -->
+        <div class="drawer-details-side">
+          <div class="drawer-panel">
+            <h4 class="panel-title">ATS Customization Delta</h4>
+            <div class="ats-delta-view">
+              <div class="progress-bar-delta">
+                <div class="progress-base" id="drawer-bar-base" style="width:78%;"></div>
+                <div class="progress-tailored" id="drawer-bar-tailored" style="width:20%;"></div>
+              </div>
+              <div class="delta-bullets">
+                <div><strong>Master Score:</strong> <span id="drawer-score-base">78%</span></div>
+                <div><strong>Customized Score:</strong> <span id="drawer-score-final">98%</span></div>
+              </div>
+              <div class="custom-keywords-box">
+                <strong>Keywords Added:</strong>
+                <ul class="keywords-list" id="drawer-keywords"></ul>
+              </div>
+            </div>
+          </div>
+          <div class="drawer-panel">
+            <h4 class="panel-title">Client Apply Profile &amp; Screening Answers</h4>
+            <div class="screening-qa-box">
+              <div class="qa-item"><div class="qa-q">Are you authorized to work in the US?</div><div class="qa-a">Yes, I am. I do not require visa sponsorship.</div></div>
+              <div class="qa-item"><div class="qa-q">What is your notice period?</div><div class="qa-a">Immediate (Currently interviewing).</div></div>
+              <div class="qa-item"><div class="qa-q">Portfolio / Github / LinkedIn:</div><div class="qa-a"><a href="#" target="_blank" id="drawer-linkedin">linkedin.com/in/profile</a></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form side -->
+        <div class="drawer-form-side">
+          <h4 class="panel-title panel-primary-title">Application Status &amp; Submission</h4>
+          <form id="drawer-ops-form" onsubmit="saveApplicationDetails(event)">
+            <input type="hidden" id="form-job-id">
+            <div class="form-group">
+              <label for="form-status">Update Application Status</label>
+              <select id="form-status" class="form-control" onchange="toggleFormStatus(this.value)">
+                <option value="Awaiting Apply">Awaiting Apply</option>
+                <option value="Applying">Currently Applying</option>
+                <option value="Applied">Applied (Successful)</option>
+                <option value="Failed">Failed / Blocker</option>
+                <option value="Paused">Paused</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="form-agent">Who Applied? (Ops Agent)</label>
+              <select id="form-agent" class="form-control">
+                <option value="">-- Choose Agent --</option>
+                <option value="Saranya">Saranya</option>
+                <option value="Alex">Alex</option>
+                <option value="Jordan">Jordan</option>
+                <option value="Priya">Priya</option>
+                <option value="Marcus">Marcus</option>
+              </select>
+            </div>
+            <div class="form-group" id="screenshot-upload-group">
+              <label>Proof of Application Screenshot</label>
+              <div class="screenshot-uploader" id="screenshot-dropzone">
+                <input type="file" id="screenshot-input" accept="image/*" onchange="handleScreenshotUpload(event)" style="display:none;">
+                <div class="upload-placeholder" id="upload-placeholder" onclick="document.getElementById('screenshot-input').click()">
+                  <svg class="icon-large" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                  <p>Drag &amp; drop proof screenshot, or <span class="browse-link">browse files</span></p>
+                  <span class="file-limits">PNG, JPG up to 5MB</span>
+                </div>
+                <div class="screenshot-preview-container" id="screenshot-preview-container" style="display:none;">
+                  <img id="screenshot-preview-img" src="" alt="Proof Preview">
+                  <div class="preview-overlay">
+                    <button type="button" class="btn-icon" onclick="viewFullScreenScreenshot()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg></button>
+                    <button type="button" class="btn-icon danger" onclick="removeUploadedScreenshot()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn-mock-screenshot" onclick="simulateProofUpload()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>
+                Generate Simulation Proof Screen
+              </button>
+            </div>
+            <div class="form-group toggle-group">
+              <label class="checkbox-container">
+                <input type="checkbox" id="form-has-problem" onchange="toggleProblemTextarea(this.checked)">
+                <span class="checkmark"></span>
+                <span class="checkbox-label text-danger"><strong>Flag problem / blocker</strong></span>
+              </label>
+            </div>
+            <div class="form-group" id="problem-textarea-group" style="display:none;">
+              <label for="form-problem-desc">Describe the Issue</label>
+              <textarea id="form-problem-desc" class="form-control" rows="3" placeholder="Explain the blocker…"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="form-notes">Ops Notes (Internal)</label>
+              <textarea id="form-notes" class="form-control" rows="2" placeholder="Add details about this submission run…"></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" onclick="closeDetailDrawer()">Discard</button>
+              <button type="submit" class="btn-primary">Save Submission State</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox-overlay" id="lightbox-overlay" onclick="closeLightbox()">
+    <button class="btn-close-lightbox" onclick="closeLightbox()">&times;</button>
+    <img id="lightbox-img" src="" alt="Full Screen Screenshot">
+  </div>
+
+  <script src="app.js?v=3"></script>
+</body>
+</html>
