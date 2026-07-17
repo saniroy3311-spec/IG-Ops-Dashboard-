@@ -361,7 +361,7 @@ a:hover { text-decoration: underline; }
    ========================================================================== */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: 1.5fr 1fr;
+  grid-template-columns: 2.2fr 1fr;
   gap: 16px;
   align-items: start;
 }

@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
 
@@ -109,35 +109,12 @@
               </div>
             </div>
 
-            <!-- Chart + feed card -->
+            <!-- Feed card -->
             <div class="grid-card">
               <div class="card-header">
-                <h3>Daily Submission Rate</h3>
-                <span class="badge-green">Target: 95%</span>
-              </div>
-              <div class="mock-chart-container">
-                <svg class="visual-chart" viewBox="0 0 400 150">
-                  <defs>
-                    <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#111111" stop-opacity="0.08"></stop>
-                      <stop offset="100%" stop-color="#111111" stop-opacity="0"></stop>
-                    </linearGradient>
-                  </defs>
-                  <path d="M 0 110 Q 50 70 100 95 T 200 40 T 300 70 T 400 30 L 400 150 L 0 150 Z" fill="url(#chart-grad)"></path>
-                  <path d="M 0 110 Q 50 70 100 95 T 200 40 T 300 70 T 400 30" fill="none" stroke="#111111" stroke-width="2"></path>
-                  <circle cx="100" cy="95" r="3" fill="#111111"></circle>
-                  <circle cx="200" cy="40" r="3" fill="#111111"></circle>
-                  <circle cx="300" cy="70" r="3" fill="#111111"></circle>
-                  <circle cx="400" cy="30" r="3" fill="#111111"></circle>
-                  <line x1="0" y1="120" x2="400" y2="120" stroke="#e5e7eb" stroke-dasharray="4"></line>
-                  <line x1="0" y1="60" x2="400" y2="60" stroke="#e5e7eb" stroke-dasharray="4"></line>
-                </svg>
-                <div class="chart-labels">
-                  <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu (Today)</span>
-                </div>
+                <h3>Live System Feed</h3>
               </div>
               <div class="ops-feed">
-                <h4>LIVE SYSTEM FEED</h4>
                 <div class="feed-list" id="dashboard-feed-list"></div>
               </div>
             </div>
