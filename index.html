@@ -212,10 +212,11 @@
                       <label for="filter-status">Ops Status</label>
                       <select id="filter-status" onchange="applyFilters()">
                         <option value="all">All Statuses</option>
-                        <option value="Awaiting Apply">Awaiting Apply</option>
-                        <option value="Applying">Applying</option>
+                        <option value="Pending Apply">Pending Apply</option>
                         <option value="Applied">Applied</option>
-                        <option value="Paused">Paused</option>
+                        <option value="Duplicate Job">Duplicate Job</option>
+                        <option value="Previously Applied">Previously Applied</option>
+                        <option value="Error">Error</option>
                         <option value="Failed">Failed</option>
                       </select>
                     </div>
@@ -341,11 +342,12 @@
             <div class="form-group">
               <label for="form-status">Update Application Status</label>
               <select id="form-status" class="form-control" onchange="toggleFormStatus(this.value)">
-                <option value="Awaiting Apply">Awaiting Apply</option>
-                <option value="Applying">Currently Applying</option>
-                <option value="Applied">Applied (Successful)</option>
-                <option value="Failed">Failed / Blocker</option>
-                <option value="Paused">Paused</option>
+                <option value="Pending Apply">Pending Apply</option>
+                <option value="Applied">Applied</option>
+                <option value="Duplicate Job">Duplicate Job</option>
+                <option value="Previously Applied">Previously Applied</option>
+                <option value="Error">Error</option>
+                <option value="Failed">Failed</option>
               </select>
             </div>
             <div class="form-group">

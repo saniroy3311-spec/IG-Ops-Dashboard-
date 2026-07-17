@@ -872,11 +872,29 @@ function initDataStore() {
     clients.forEach(c => c.color = "#f3f4f6"); // Clean any old cached colors
     saveStateToLocalStorage(); // Commit monochrome colors to persistent storage
     jobs = JSON.parse(savedJobs);
+    
+    // Normalize status strings for any existing saved records
+    jobs.forEach(j => {
+      if (j.status === "Awaiting Apply" || j.status === "Applying") {
+        j.status = "Pending Apply";
+      } else if (j.status === "Paused") {
+        j.status = "Previously Applied";
+      }
+    });
+    saveStateToLocalStorage();
+    
     logs = JSON.parse(savedLogs);
   } else {
     // Seed default data
     clients = [...DEFAULT_CLIENTS];
     jobs = [...MOCK_JOBS_SEED];
+    jobs.forEach(j => {
+      if (j.status === "Awaiting Apply" || j.status === "Applying") {
+        j.status = "Pending Apply";
+      } else if (j.status === "Paused") {
+        j.status = "Previously Applied";
+      }
+    });
     logs = [...MOCK_AUDIT_LOGS];
     saveStateToLocalStorage();
   }
@@ -930,15 +948,15 @@ function switchView(viewName) {
 // ==========================================================================
 function renderOverview() {
   // Calculate totals
-  const awaiting = jobs.filter(j => j.status === "Awaiting Apply").length;
-  const submitting = jobs.filter(j => j.status === "Applying").length;
+  const awaiting = jobs.filter(j => j.status === "Pending Apply").length;
+  const duplicateOrPrev = jobs.filter(j => j.status === "Duplicate Job" || j.status === "Previously Applied").length;
   const applied = jobs.filter(j => j.status === "Applied").length;
-  const failed = jobs.filter(j => j.status === "Failed").length;
+  const failedOrError = jobs.filter(j => j.status === "Failed" || j.status === "Error").length;
 
   document.getElementById("stats-awaiting").textContent = awaiting;
-  document.getElementById("stats-submitting").textContent = submitting;
+  document.getElementById("stats-submitting").textContent = duplicateOrPrev;
   document.getElementById("stats-applied").textContent = applied;
-  document.getElementById("stats-failed").textContent = failed;
+  document.getElementById("stats-failed").textContent = failedOrError;
   document.getElementById("sidebar-total-pending").textContent = awaiting;
 
   // Render client card items in Dashboard overview
@@ -947,9 +965,9 @@ function renderOverview() {
 
   clients.forEach(client => {
     const clientJobs = jobs.filter(j => j.clientId === client.id);
-    const clientAwaiting = clientJobs.filter(j => j.status === "Awaiting Apply").length;
+    const clientAwaiting = clientJobs.filter(j => j.status === "Pending Apply").length;
     const clientApplied = clientJobs.filter(j => j.status === "Applied").length;
-    const clientFailed = clientJobs.filter(j => j.status === "Failed").length;
+    const clientFailed = clientJobs.filter(j => j.status === "Failed" || j.status === "Error").length;
 
     const row = document.createElement("div");
     row.className = "db-client-row";
@@ -1155,10 +1173,11 @@ const OPS_AGENTS = ["Saranya", "Alex", "Jordan", "Priya", "Marcus"];
 
 // All available job statuses
 const JOB_STATUSES = [
-  "Awaiting Apply",
-  "Applying",
+  "Pending Apply",
   "Applied",
-  "Paused",
+  "Duplicate Job",
+  "Previously Applied",
+  "Error",
   "Failed"
 ];
 
@@ -1234,10 +1253,11 @@ function renderTable(dataList) {
 
     // ── Status dropdown ──
     let statusClass = "awaiting";
-    if (job.status === "Applying")      statusClass = "applying";
-    else if (job.status === "Applied")  statusClass = "applied";
-    else if (job.status === "Failed")   statusClass = "failed";
-    else if (job.status === "Paused")   statusClass = "paused";
+    if (job.status === "Applied")            statusClass = "applied";
+    else if (job.status === "Duplicate Job") statusClass = "paused";
+    else if (job.status === "Previously Applied") statusClass = "paused";
+    else if (job.status === "Error")         statusClass = "failed";
+    else if (job.status === "Failed")        statusClass = "failed";
 
     const statusOpts = JOB_STATUSES.map(s =>
       `<option value="${s}" ${job.status === s ? "selected" : ""}>${s}</option>`
@@ -1358,10 +1378,11 @@ function saveInlineStatus(event, jobId) {
 
   // Update colour class on select
   let sc = "awaiting";
-  if (newStatus === "Applying")    sc = "applying";
-  else if (newStatus === "Applied") sc = "applied";
-  else if (newStatus === "Failed")  sc = "failed";
-  else if (newStatus === "Paused")  sc = "paused";
+  if (newStatus === "Applied")            sc = "applied";
+  else if (newStatus === "Duplicate Job") sc = "paused";
+  else if (newStatus === "Previously Applied") sc = "paused";
+  else if (newStatus === "Error")         sc = "failed";
+  else if (newStatus === "Failed")        sc = "failed";
   event.target.className = `inline-select status-select status-${sc}`;
 
   // Log it
