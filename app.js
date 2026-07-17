@@ -1129,6 +1129,7 @@ function applyFilters() {
   const filterStrength = document.getElementById("filter-strength").value;
   const filterStatus = document.getElementById("filter-status").value;
   const filterAgent = document.getElementById("filter-agent").value;
+  const filterDate = document.getElementById("filter-date").value;
 
   // Filter jobs array
   const filtered = jobs.filter(job => {
@@ -1159,6 +1160,33 @@ function applyFilters() {
         if (job.assignedTo !== null) return false;
       } else {
         if (job.assignedTo !== filterAgent) return false;
+      }
+    }
+
+    // Match Date Added
+    if (filterDate !== "all") {
+      if (!job.createdDate) return false;
+      
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const jobDate = new Date(job.createdDate);
+      const todayDate = new Date(todayStr);
+      const diffTime = Math.abs(todayDate - jobDate);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (filterDate === "today" && job.createdDate !== todayStr) {
+        return false;
+      }
+      if (filterDate === "yesterday") {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().slice(0, 10);
+        if (job.createdDate !== yesterdayStr) return false;
+      }
+      if (filterDate === "3days" && diffDays > 3) {
+        return false;
+      }
+      if (filterDate === "7days" && diffDays > 7) {
+        return false;
       }
     }
 
@@ -1446,6 +1474,7 @@ function resetFilters() {
   document.getElementById("filter-strength").value = "all";
   document.getElementById("filter-status").value = "all";
   document.getElementById("filter-agent").value = "all";
+  document.getElementById("filter-date").value = "all";
   applyFilters();
 }
 
