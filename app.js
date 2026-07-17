@@ -892,6 +892,15 @@ function initDataStore() {
     saveStateToLocalStorage();
     
     logs = JSON.parse(savedLogs);
+    // Normalize logs to ensure timestamp is always populated
+    logs.forEach((log, idx) => {
+      if (!log.timestamp) {
+        const dateObj = new Date(today);
+        dateObj.setHours(today.getHours() - idx);
+        log.timestamp = dateObj.toISOString().replace("T", " ").slice(0, 19);
+      }
+    });
+    saveStateToLocalStorage();
   } else {
     // Seed default data
     clients = [...DEFAULT_CLIENTS];
@@ -912,6 +921,13 @@ function initDataStore() {
       }
     });
     logs = [...MOCK_AUDIT_LOGS];
+    logs.forEach((log, idx) => {
+      if (!log.timestamp) {
+        const dateObj = new Date(today);
+        dateObj.setHours(today.getHours() - idx);
+        log.timestamp = dateObj.toISOString().replace("T", " ").slice(0, 19);
+      }
+    });
     saveStateToLocalStorage();
   }
 
@@ -928,9 +944,11 @@ function saveStateToLocalStorage() {
 }
 
 function updateTimeDisplay() {
+  const el = document.getElementById("current-time-text");
+  if (!el) return;
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short' };
   const formatted = new Date().toLocaleDateString('en-US', options);
-  document.getElementById("current-time-text").textContent = formatted;
+  el.textContent = formatted;
 }
 
 // ==========================================================================
@@ -1828,6 +1846,7 @@ function buildLogRow(log) {
 
 function renderLogs() {
   const tbody = document.getElementById("audit-log-body");
+  if (!tbody) return;
   const emptyState = document.getElementById("logs-empty-state");
   const table = tbody.closest("table");
 
