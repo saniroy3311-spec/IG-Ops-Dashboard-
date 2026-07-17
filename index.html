@@ -46,9 +46,20 @@
              VIEW: OVERVIEW
              ══════════════════════════════════════════════════════ -->
         <div id="view-dashboard" class="content-view">
-          <div class="view-header">
+          <div class="view-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
             <div>
               <h1>Ops Control Center</h1>
+            </div>
+            <div style="display:flex; gap:12px; align-items:center;">
+              <div class="filter-select-wrapper">
+                <label for="db-date-from" style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--gray-500);">Date From</label>
+                <input type="date" id="db-date-from" onchange="renderOverview()" style="padding:5px 10px; border:1px solid var(--gray-200); border-radius:var(--radius-sm); font-size:12px; background:var(--white); color:var(--gray-800); outline:none; font-family:inherit;">
+              </div>
+              <div class="filter-select-wrapper">
+                <label for="db-date-to" style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; color:var(--gray-500);">Date To</label>
+                <input type="date" id="db-date-to" onchange="renderOverview()" style="padding:5px 10px; border:1px solid var(--gray-200); border-radius:var(--radius-sm); font-size:12px; background:var(--white); color:var(--gray-800); outline:none; font-family:inherit;">
+              </div>
+              <button class="btn-secondary" onclick="resetDbDateFilters()" style="margin-top:14px;">Reset</button>
             </div>
           </div>
 

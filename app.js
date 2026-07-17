@@ -981,11 +981,25 @@ function switchView(viewName) {
 // Overview Dashboard Render
 // ==========================================================================
 function renderOverview() {
-  // Calculate totals
-  const awaiting = jobs.filter(j => j.status === "Pending Apply").length;
-  const duplicateOrPrev = jobs.filter(j => j.status === "Duplicate Job" || j.status === "Previously Applied").length;
-  const applied = jobs.filter(j => j.status === "Applied").length;
-  const failedOrError = jobs.filter(j => j.status === "Failed" || j.status === "Error").length;
+  const dateFrom = document.getElementById("db-date-from")?.value || "";
+  const dateTo = document.getElementById("db-date-to")?.value || "";
+
+  // Filter jobs by date range if specified
+  let filteredJobs = [...jobs];
+  if (dateFrom || dateTo) {
+    filteredJobs = jobs.filter(j => {
+      if (!j.createdDate) return false;
+      if (dateFrom && j.createdDate < dateFrom) return false;
+      if (dateTo && j.createdDate > dateTo) return false;
+      return true;
+    });
+  }
+
+  // Calculate totals from filtered jobs
+  const awaiting = filteredJobs.filter(j => j.status === "Pending Apply").length;
+  const duplicateOrPrev = filteredJobs.filter(j => j.status === "Duplicate Job" || j.status === "Previously Applied").length;
+  const applied = filteredJobs.filter(j => j.status === "Applied").length;
+  const failedOrError = filteredJobs.filter(j => j.status === "Failed" || j.status === "Error").length;
 
   document.getElementById("stats-awaiting").textContent = awaiting;
   document.getElementById("stats-submitting").textContent = duplicateOrPrev;
@@ -998,7 +1012,7 @@ function renderOverview() {
   clientsContainer.innerHTML = "";
 
   clients.forEach(client => {
-    const clientJobs = jobs.filter(j => j.clientId === client.id);
+    const clientJobs = filteredJobs.filter(j => j.clientId === client.id);
     const clientAwaiting = clientJobs.filter(j => j.status === "Pending Apply").length;
     const clientApplied = clientJobs.filter(j => j.status === "Applied").length;
     const clientFailed = clientJobs.filter(j => j.status === "Failed" || j.status === "Error").length;
@@ -1026,27 +1040,14 @@ function renderOverview() {
     `;
     clientsContainer.appendChild(row);
   });
+}
 
-  // Render Recent Logs Feed (Last 5 logs)
-  const feedContainer = document.getElementById("dashboard-feed-list");
-  feedContainer.innerHTML = "";
-
-  const recentLogs = [...logs].reverse().slice(0, 5);
-  recentLogs.forEach(log => {
-    const dateObj = new Date(log.timestamp.replace(/-/g, "/"));
-    const timeStr = isNaN(dateObj.getTime()) ? log.timestamp.split(" ")[1] : dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-    
-    const item = document.createElement("div");
-    item.className = "feed-item";
-    item.innerHTML = `
-      <span class="feed-time">${timeStr}</span>
-      <span class="feed-dot ${log.severity}"></span>
-      <div class="feed-content">
-        <strong>${log.clientName}</strong>: ${log.action} <span class="text-muted">(${log.agent})</span>
-      </div>
-    `;
-    feedContainer.appendChild(item);
-  });
+function resetDbDateFilters() {
+  const fromEl = document.getElementById("db-date-from");
+  const toEl = document.getElementById("db-date-to");
+  if (fromEl) fromEl.value = "";
+  if (toEl) toEl.value = "";
+  renderOverview();
 }
 
 // ==========================================================================
