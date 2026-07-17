@@ -1378,6 +1378,10 @@ a:hover { text-decoration: underline; }
 }
 
 @media (max-width: 768px) {
+  html, body {
+    overflow: auto !important;
+    height: auto !important;
+  }
   .app-header {
     display: flex;
     flex-direction: column;
@@ -1396,6 +1400,11 @@ a:hover { text-decoration: underline; }
     height: auto;
     min-height: calc(100vh - 100px);
     overflow: visible;
+  }
+  .table-container {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    -webkit-overflow-scrolling: touch;
   }
   .content-panel {
     overflow-y: visible;
@@ -1502,7 +1511,8 @@ a:hover { text-decoration: underline; }
   .filter-select-wrapper {
     width: 100%;
   }
-  .filter-select-wrapper select {
+  .filter-select-wrapper select,
+  .filter-select-wrapper input {
     width: 100%;
   }
   .action-group {
