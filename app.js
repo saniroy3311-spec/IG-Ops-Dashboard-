@@ -873,12 +873,20 @@ function initDataStore() {
     saveStateToLocalStorage(); // Commit monochrome colors to persistent storage
     jobs = JSON.parse(savedJobs);
     
-    // Normalize status strings for any existing saved records
-    jobs.forEach(j => {
+    // Normalize status strings and add creation date if missing
+    const today = new Date();
+    jobs.forEach((j, idx) => {
       if (j.status === "Awaiting Apply" || j.status === "Applying") {
         j.status = "Pending Apply";
       } else if (j.status === "Paused") {
         j.status = "Previously Applied";
+      }
+      
+      if (!j.createdDate) {
+        const daysAgo = idx % 5; // distribute over last 5 days
+        const dateObj = new Date(today);
+        dateObj.setDate(today.getDate() - daysAgo);
+        j.createdDate = dateObj.toISOString().slice(0, 10);
       }
     });
     saveStateToLocalStorage();
@@ -888,11 +896,19 @@ function initDataStore() {
     // Seed default data
     clients = [...DEFAULT_CLIENTS];
     jobs = [...MOCK_JOBS_SEED];
-    jobs.forEach(j => {
+    const today = new Date();
+    jobs.forEach((j, idx) => {
       if (j.status === "Awaiting Apply" || j.status === "Applying") {
         j.status = "Pending Apply";
       } else if (j.status === "Paused") {
         j.status = "Previously Applied";
+      }
+      
+      if (!j.createdDate) {
+        const daysAgo = idx % 5;
+        const dateObj = new Date(today);
+        dateObj.setDate(today.getDate() - daysAgo);
+        j.createdDate = dateObj.toISOString().slice(0, 10);
       }
     });
     logs = [...MOCK_AUDIT_LOGS];
@@ -1249,6 +1265,14 @@ function getApplyUrl(company, title) {
   return `https://www.linkedin.com/jobs/search/?keywords=${q}`;
 }
 
+function formatJobDate(dateStr) {
+  if (!dateStr) return "N/A";
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr;
+  const options = { month: 'short', day: 'numeric' };
+  return date.toLocaleDateString('en-US', options);
+}
+
 function renderTable(dataList) {
   const tbody = document.getElementById("jobs-table-body");
   const emptyState = document.getElementById("table-empty-state");
@@ -1315,7 +1339,9 @@ function renderTable(dataList) {
       <td><strong style="font-size:12px;">${job.company}</strong></td>
       <td>
         <div class="job-title-link" onclick="openDetailDrawer('${job.id}')" style="font-weight:500; font-size:12px; cursor:pointer;" title="Open detail">${job.title}</div>
-        <div style="font-size:11px; color:var(--gray-500); margin-top:2px;">${job.location}</div>
+        <div style="font-size:11px; color:var(--gray-500); margin-top:2px;">
+          ${job.location} &bull; Added ${formatJobDate(job.createdDate)}
+        </div>
       </td>
       <td><span class="status-pill">${job.arrangement}</span></td>
       <td>
