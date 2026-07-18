@@ -99,9 +99,9 @@ const MOCK_JOBS_SEED = [
     baseScore: 72,
     tailoredScore: 96,
     matchStrength: "Strong",
-    status: "Awaiting Apply",
-    assignedTo: null,
-    appliedAt: null,
+    status: "Applied",
+    assignedTo: "Saranya",
+    appliedAt: new Date().toISOString(),
     screenshot: null,
     problemReport: null,
     notes: "Top Company role. Client has high interest.",
@@ -120,7 +120,7 @@ const MOCK_JOBS_SEED = [
     baseScore: 67,
     tailoredScore: 92,
     matchStrength: "Possible",
-    status: "Awaiting Apply",
+    status: "Duplicate Job",
     assignedTo: null,
     appliedAt: null,
     screenshot: null,
@@ -141,7 +141,7 @@ const MOCK_JOBS_SEED = [
     baseScore: 76,
     tailoredScore: 90,
     matchStrength: "Strong",
-    status: "Awaiting Apply",
+    status: "Previously Applied",
     assignedTo: null,
     appliedAt: null,
     screenshot: null,
@@ -162,11 +162,11 @@ const MOCK_JOBS_SEED = [
     baseScore: 68,
     tailoredScore: 86,
     matchStrength: "Possible",
-    status: "Awaiting Apply",
-    assignedTo: null,
+    status: "Error",
+    assignedTo: "Alex",
     appliedAt: null,
     screenshot: null,
-    problemReport: null,
+    problemReport: "Workday login credentials expired for client profile",
     notes: "Requires security clearance questions validation.",
     keywords: ["SIOP", "Inventory forecasting", "Aviation programs"]
   },
@@ -183,11 +183,11 @@ const MOCK_JOBS_SEED = [
     baseScore: 63,
     tailoredScore: 85,
     matchStrength: "Possible",
-    status: "Awaiting Apply",
-    assignedTo: null,
+    status: "Failed",
+    assignedTo: "Jordan",
     appliedAt: null,
     screenshot: null,
-    problemReport: null,
+    problemReport: "Form submission failed due to network timeout",
     notes: "",
     keywords: ["e-commerce", "Sales analytics", "Team management"]
   },
@@ -862,6 +862,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function initDataStore() {
+  // Force a clean database reload once for new statuses and demo jobs
+  if (!localStorage.getItem("is_ops_v6_reset")) {
+    localStorage.removeItem("is_ops_clients");
+    localStorage.removeItem("is_ops_jobs");
+    localStorage.removeItem("is_ops_logs");
+    localStorage.setItem("is_ops_v6_reset", "true");
+  }
+
   // Try loading from localStorage
   const savedClients = localStorage.getItem("is_ops_clients");
   const savedJobs = localStorage.getItem("is_ops_jobs");
